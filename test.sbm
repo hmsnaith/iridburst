@@ -1,0 +1,92 @@
+From sbdservice@sbd.iridium.com Tue Jan  8 16:03:01 2013
+Received: from moutng.kundenserver.de (moutng.kundenserver.de [212.227.17.9])
+	by mercury.noc.soton.ac.uk (8.13.1/8.12.11) with ESMTP id r08G2tbk005230
+	for <iridburst@noc.soton.ac.uk>; Tue, 8 Jan 2013 16:02:55 GMT
+Received: from istbsp01.sbd.iridium.com (outbound.sbd.iridium.com [12.47.179.11])
+	by mx.kundenserver.de (node=mxeu0) with ESMTP (Nemesis)
+	id 0MEGnU-1Tm4Bi2u5o-00Fouu for iridium3@develogic.de; Tue, 08 Jan 2013 17:02:55 +0100
+Reply-To: <sbdservice@sbd.iridium.com>
+From: sbdservice@sbd.iridium.com
+To: iridium3@develogic.de
+Subject: SBD Msg From Unit: 300025010311490
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary="SBD.Boundary.605592468"
+Message-Id: <19740413064121.9E9E7CDAF71D01B9@istbsp01.sbd.iridium.com>
+Date: Tue,  8 Jan 2013 16:02:48 +0000 (GMT)
+X-UI-Loop: V01:QmnJqcLAjWg=:Ppj4WX5xswX7CKEwhlSDPm9fph3swdCmhsInSafd4+E=
+X-NOCS-MailScanner-Information: Please contact the ISP for more information
+X-NOCS-MailScanner-ID: r08G2tbk005230
+X-NOCS-MailScanner: Found to be clean
+X-NOCS-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (not cached, score=-2.599, required 5,
+	autolearn=not spam, BAYES_00 -2.60)
+X-NOCS-MailScanner-From: sbdservice@sbd.iridium.com
+X-Spam-Status: No
+
+
+SBM Message
+--SBD.Boundary.605592468
+Content-Type: text/plain;charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+MOMSN: 2867
+MTMSN: 0
+Time of Session (UTC): Tue Jan  8 16:02:24 2013
+Session Status: 00 - Transfer OK
+Message Size (bytes): 1708
+
+Unit Location: Lat = 59.566763 Long = -35.340107
+CEPradius = 252
+
+-- 
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
+
+--SBD.Boundary.605592468
+Content-Type: application/x-zip-compressed; name="SBMmessage.sbd"
+Content-Disposition: attachment; filename="300025010311490_002867.sbd"
+Content-Transfer-Encoding: base64
+
+XwsAABpcMjAxMzAxMDguQ09MXDAxMDgxNjAxLkNPTAAAAACFBgAADQohezE5
+MDQtNjAgMjAxMy0wMS0wOCAxNjowMDowNy43Njh9DQo8RXhlY3V0aW5nLz4N
+CjxTYW1wbGVEYXRhIElEPScweDMxNDMnIExFTj0nMTExJyBDUkM9JzB4OGQx
+ZjM4YTknPiAxIDggMjAxMyAxNSAzNSAzMyAwIDQ4IDAuMDI3IC0wLjAyNyAt
+MC4wMDEgNTkgNTAgNTQgMTEuMyAxNDY1LjQgMzM4LjQgLTAuNyAwLjMgMTAw
+MS42NDggMy43MSAwIDAgMC4wMzggMTM1LjANCjwvU2FtcGxlRGF0YT4NCjxF
+eGVjdXRlZA0KIXsxOTA0LTAwIDIwMTMtMDEtMDggMTY6MDA6MTIuNzY4fQ0K
+PEV4ZWN1dGluZy8+DQo8U2FtcGxlRGF0YSBJRD0nMHg2YWIzJyBMRU49JzIy
+JyBDUkM9JzB4YmMyMWMxYTEnPjsgICAgMzguMzY7ICAgICA0LjU4DQo8L1Nh
+bXBsZURhdGE+DQo8RXhlY3V0ZWQvPg0KPC9SZW1vDQohezE5MDQtMDEgMjAx
+My0wMS0wOCAxNjowMDoxOS4zMDR9DQogMDIyNTIsICAzMy4wMDQwLCAgIDQu
+NjEyOCwgMTU6NTA6MDEsIDAxLTA4LTIwMTMNCjwvUmVtb3RlUmVwbHk+DQoh
+ezE5MDQtMDIgMjAxMy0wMS0wOCAxNjowMDoyMy4xMjh9DQowNzQ3MSwgIDMz
+LjAwMTksICAgNC42MTM5LCAxNTo1MDowMSwgMDEtMDgtMjAxMywgMTYxMjgN
+CjxFeGVjdXRlZC8+DQo8L1JlbW90ZVJlcGx5Pg0KIXsxOTA0LTAzIDIwMTMt
+MDEtMDggMTY6MDA6MjkuOTUwfQ0KIDAzNzU0LCAgMzIuOTk4NiwgICA0LjYx
+NzEsICAgMzcuMDUzLCAxNTo1MDowMiwgMDEtMDgtMjAxMw0KPC9SZW1vdGVS
+ZXBseT4NCiF7MTkwNC0wNCAyMDEzLTAxLTA4IDE2OjAwOjM0LjMwNn0NCiAw
+Mjc5OSwgIDMzLjA0ODYsICAgNC42MjMwLCAxNTo1MDowMCwgMDEtMDgtMjAx
+Mw0KPC9SZW1vdGVSZXBseT4NCiF7MTkwNC0wNSAyMDEzLTAxLTA4IDE2OjAw
+OjM5LjMwMn0NCiAwMjI1NSwgIDMzLjIwOTYsICAgNC42NTM2LCAxNTo1MDow
+MCwgMDEtMDgtMjAxMw0KPC9SZW1vdGVSZXBseT4NCiF7MTkwNC0wNiAyMDEz
+LTAxLTA4IDE2OjAwOjQ0LjMwNH0NCiAwMjI1NiwgIDMzLjA1MTcsICAgNC40
+NDM4LCAxNTo1MDowMSwgMDEtMDgtMjAxMw0KPC9SZW1vdGVSZXBseT4NCiF7
+MTkwNC0wNyAyMDEzLTAxLTA4IDE2OjAwOjQ5LjMwMn0NCiAwMTcyMiwgIDMy
+Ljk1MzIsICAgNC4yNDgyLCAxNTo1MDowMSwgMDEtMDgtMjAxMw0KPC9SZW1v
+dGVSZXBseT4NCiF7MTkwNC0wOCAyMDEzLTAxLTA4IDE2OjAwOjU0LjQzMn0N
+CiAwMzQxNCwgIDMyLjgxMjgsICAgNC4wODg2LCAgNDcxLjQ4NywgMTU6NTA6
+MDAsIDAxLTA4LTIwMTMNCjwvUmVtb3RlUmVwbHk+DQohezE5MDQtMDkgMjAx
+My0wMS0wOCAxNjowMDo1OS4zMzJ9DQogMDI5MzMsICAzMi43NTMwLCAgIDQu
+MDI2OCwgMTU6NTA6MDAsIDAxLTA4LTIwMTMNCjwvUmVtb3RlUmVwbHk+DQoh
+ezE5MDQtMTAgMjAxMy0wMS0wOCAxNjowMTowNC4zMDR9DQogMDIyNTQsICAz
+Mi42NjAyLCAgIDMuOTAxOCwgMTU6NTA6MDAsIDAxLTA4LTIwMTMNCjwvUmVt
+b3RlUmVwbHk+DQohezE5MDQtMTEgMjAxMy0wMS0wOCAxNjowMTowOS45NTB9
+DQogMDM3NTUsICAzMi43MjczLCAgIDMuODc3NCwgIDc0OS4zOTUsIDE1OjUw
+OjAxLCAwMS0wOC0yMDEzDQo8L1JlbW90ZVJlcGx5Pg0KIXsxOTA0LTEyIDIw
+MTMtMDEtMDggMTY6MDE6MTQuMzMyfQ0KIDAyODAxLCAgMzIuNzAwNywgICAz
+LjgyMDAsIDE1OjUwOjAwLCAwMS0wOC0yMDEzDQo8L1JlbW90ZVJlcGx5Pg==
+
+--SBD.Boundary.605592468--
+

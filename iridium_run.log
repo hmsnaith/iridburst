@@ -1,0 +1,42 @@
+STATION sbdservice
+IRID_ID 300025010244950
+attachment filename: 300025010244950_001624.sbd
+BODY SBM Message
+--SBD.Boundary.605592468
+Content-Type: text/plain;charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+MOMSN: 1624
+MTMSN: 0
+Time of Session (UTC): Thu Jun 15 15:04:01 2017
+Session Status: 00 - Transfer OK
+Message Size (bytes): 194
+
+Unit Location: Lat = 50.86699 Long = -1.47754
+CEPradius = 19
+
+-- 
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
+
+--SBD.Boundary.605592468
+Content-Type: application/x-zip-compressed; name="SBMmessage.sbd"
+Content-Disposition: attachment; filename="300025010244950_001624.sbd"
+Content-Transfer-Encoding: base64
+
+JFc1TTVBLDE3MDYxNSwxNTAwMDUsNTIwNzAwMWU0NTI1ZDZhMiwxLERBU18y
+Qyw1MDUzLjU0MjFOLDEyMy43MDcxVywsLCwsMzYuMiw5Ny4xLDM1LjEsLCws
+LCwqN0MNCiRXNU01QSwxNzA2MTUsMTUwMDA1LDUyMDcwMDFlNDUyNWQ2YTIs
+MixEQVNfMkMsMTIuNjMsMTMuMDEsMC4wNSwwLjA1LC0wLjA3LDE3ODQsMTQ2
+LDAsLDI2Ljc4Kjc2DQo=
+
+--SBD.Boundary.605592468--
+
+
+STATION TABLE DATA 177,99999,300025010244950,300025010244950_2016_met,49,-16.5,20,36,bodcnocs,101 
+PROCESS /noc/users/iridburst/exec/irid_300025010244950_upd.pl
+end of fbox1 sub alert_enabled 101 
+end of fbox1  alert_enabled 101 so ??_upd.pl processed
+record for IRID stationl  sbdservice send to ???_upd.pl 
