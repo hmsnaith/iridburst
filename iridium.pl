@@ -5,10 +5,10 @@
 # orby mail messages are routed to the old user ids perl scripts
 # Messages are sent to iridburst@noc.soton.ac.uk
 # There is the following line in iridburst's home directory .forward file:
-# \iridburst, "| /noc/users/iridburst/exec/iridium.pl > /noc/users/iridburst/logs/iridium_run.log" mred 2010sept
+# \iridburst, "| /noc/users/iridburst/exec/iridium.pl > /noc/users/iridburst/exec/iridium_run.log"
 # alert_enabled 201 for alert for PAP as no ???_upd required mred 8-Jan-2012
-# Set the perl libraries to use
 
+# Set the perl libraries to use
 use Time::Local;
 use CGI;
 use DBI;
@@ -20,7 +20,6 @@ $mon = $mon + 1;
 # Set up email notification specification
 $mailprog='/usr/lib/sendmail';
 $from_address="Iridium_System\@noc.soton.ac.uk";
-#$to_address="poseidon\@ifm-geomar.de,joc\@noc.soton.ac.uk,mred\@noc.soton.ac.uk";
 $to_address="migcha\@noc.ac.uk,john.walk\@noc.ac.uk,joncamoceandata\@gmail.com,bodcnocs\@bodc.ac.uk";   # address that SBD message is sent to
 local $/ = "";
 
@@ -32,20 +31,26 @@ foreach $line (@lines) {
   my ($label,$value) = split /:\s*/, $line, 2;
   $hash{$label} = $value;
 }
+
 # Station ID will be given in the "From" field
 ($station)= split /@/,$hash{'From'};
 $stationl=lc($station); # Ensure always lower case for string matching
+#$stationl=$station;
+#$stationl=~ tr/A-Z/a-z/;
+#
 # Iridium ID in the "Subject" field
+#($rest,$irid_id)= split /": "/,$hash{'Subject'},2;
 $irid_id = substr($hash{'Subject'},-15);
 
 print("STATION $stationl\n");
 
 # For messages from iridburst - set the station to sbdservice
-if (($stationl =~ m/m.pagnani/)||($stationl =~ m/iridburst/)) {
+if (($stationl =~ m/bodcnocs/) || ($stationl =~ m/iridburst/)) {
   $stationl = 'sbdservice';
   print("STATION-modified to  $stationl\n");
 }
 
+#print "REST $rest\n";
 print "IRID_ID $irid_id\n";
 
 # Read in content - either from attachment or message body
@@ -62,78 +67,67 @@ if ($header =~ m/Content-Disposition: attachment/) {
 print ("attachment filename: $attFileName\n");
 print("BODY $body\n");
 
-if ($stationl eq 'xxxx'  ) {
-  # If the station type is xxxx
+if ($stationl eq 'xxxx') {
+  # If the station name is 'xxxx' use the xxxx_upd.pl script to process
   $handler="/noc/users/iridburst/exec/${stationl}_upd.pl";
+  # If this is sbdservice, or iridburst, data
 } else {
-  # If this is sbdservice, or iridburst data
-  if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst') ) {
+  if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst')  ) {
     # decodes attachment input for $irid_id,$jday,$lat,$lon,$rest0
     #################
-    # Find out from realtime database what we should be doing with this data
+    # Find out from realtime database what the alert status is for this station
     $dbhrt = DBI->connect("DBI:mysql:realtime:mysql","rt_admin","rt_adm1n") || die "Can't open $database";
-    sth=$dbhrt->prepare("SELECT * from station WHERE program > 88000  and ptt = $irid_id");
+    $sth=$dbhrt->prepare("SELECT * from station WHERE program > 88000  and ptt = $irid_id");
     $sth->execute();
     @row = $sth->fetchrow_array;
     ($station_id,$station_program,$station_ptt,$station_name,$lat_ref,$lon_ref,$error_radius,$hours_silent,$alert_address,$alert_enabled,$add_tim) = @row;
     #printf("@row\n");
     print("STATION TABLE DATA $station_id,$station_program,$station_ptt,$station_name,$lat_ref,$lon_ref,$error_radius,$hours_silent,$alert_address,$alert_enabled \n");
 
-    # Decide how to deal with data
     fbox1($stationl,$body,$mon,$alert_enabled);
 
-    # Carry out alert checking according to flag in realtime database for this station
-    # Alert checking - off
     if ($alert_enabled == 0) {
       printf("No alert checking for $station, no further action\n");
       exit;
     }
-    # Alert checking - unknown -> use the ??_upd.pl script
     if ($alert_enabled == 101) {
-      print("record for IRID stationl $station sent to $process\n");
+      print("record for IRID stationl  $station send to ???_upd.pl \n");
       exit;
     }
     ####################
-    # Alert checking - on - run irid_alert.pl for this station
     if (($alert_enabled == 1) || ($alert_enabled == 201)) {
       $pass_out=$irid_id.",".$data;
-      $alert_prog="/noc/users/iridburst/exec/irid_alert.pl > /noc/users/iridburst/logs/irid_alert.log";
+      $alert_prog="/noc/users/iridburst/exec/irid_alert.pl > /noc/users/iridburst/exec/out.log";
       open(ALERT, "| $alert_prog") || die "can't open $logfile: $!\n";
       print(ALERT "$pass_out\n");
       close(ALERT);
-
       exit;
     }
-  } else { # Other station type
-    # Require specific station handler
+  } else {
     $handler="/noc/users/iridburst/exec/${stationl}_upd.pl";
   }
 }
-$file='/noc/users/iridburst/logs/iridium.log';
+
+$logfile='/noc/users/iridburst/iridium.log';
 open(LOG, ">> $logfile") || die "can't open $logfile: $!\n";
 $t=`date`;
-print(LOG "$t");
-close(LOG);
 
 # subroutines
 
 sub fbox1 {
-  # Input parameters - station type, message body, month and alert_status
   $stationl=$_[0];
   $body=$_[1];
   $mon=$_[2];
   $alert_enabled=$_[3];
   #print("IN SUB $station $body \n");
-
-  # We only handle sbdservice or iridburst station types (not necessary as checked before input to subroutine)
   if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst')  ) {
     $datatype="irid_".$irid_id;
+#   $process="/noc/users/iridburst/exec/${stationl}_upd.pl";
     $process="/noc/users/iridburst/exec/${datatype}_upd.pl";
     if ($alert_enabled == 101) {
       print ("PROCESS $process\n");
       $to_address = $alert_address;
     }
-    # Set output data filesnames
     $rawdat="/noc/users/iridburst/$datatype"."/".$datatype."_raw_$mon.dat";
     $unhexdat="/noc/users/iridburst/$datatype/".$datatype."_unhexed_$mon.dat";
     $unbindat="/noc/users/iridburst/$datatype/".$datatype."_unbinary_$mon.dat";
@@ -148,6 +142,7 @@ sub fbox1 {
       }
       $data = old_decode_base64($body_hex);
     }
+
     if (($body=~ m/multipart message in MIME format/)&&($body=~ m/Encoding: base64/ )) {
       print ("ENTERING NEW CODE\n");
       ($body_clear,$body_hex0)= split /base64/,$body,2;
@@ -162,10 +157,10 @@ sub fbox1 {
       print ("BODY_HEX:$body_hex\n");
       $data = old_decode_base64($body_hex);
     }
-    print ("RAWDATname $rawdat\n");
-    if ($irid_id == 300034012433270) { # Specific NMF format iridium id
+    # print(LOG "RAWDATname $rawdat\n");
+    if ($irid_id == 300034012433270) {
       decode_nmf($datatype,$mon,$data);
-    } else { # all other iridium messgaes - forward the email to email list
+    } else {
       open( MAIL, "|$mailprog $to_address") or die "Can't open sendmail \n";
       print MAIL <<"EOF";
 Reply-to: $from_address
@@ -176,31 +171,29 @@ Subject: Iridium email ID=$irid_id
 $data
 
 EOF
-    close(MAIL);
+      close(MAIL);
     }
 
-  } else { # We should never get here as fbox1 not called in this case
-    print "Entering fbox1 else block - we should not be here!\n";
+  } else {
     if ($stationl eq 'xxx') {
       $datatype='xxxxxxx';
       $process="/noc/users/iridburst/exec/".$stationl."_upd.pl";
-#      print ("PROCESS $process\n");
+      # print ("PROCESS $process\n");
       $rawdat="/noc/users/iridburst/$datatype"."/".$datatype."_raw_$mon.dat";
       $unhexdat="/noc/users/iridburst/$datatype/".$datatype."_unhexed_$mon.dat";
       $unbindat="/noc/users/iridburst/$datatype/".$datatype."_unbinary_$mon.dat";
       $data = old_decode_base64($body);
     } else {
-      print("Unrecognized source $station\n");
+      print("Unreognized source $station\n");
       exit;
     }
   }
 
-# Output the raw data to raw file
   open(RAW, ">> $rawdat") || die "can't open $rawdat: $!\n";
   print(RAW "$header\n"); #for testing
   print(RAW "$body");
   close(RAW);
-# Output the unhexed data
+
   open(UNHEX, ">> $unhexdat") || die "can't open $unhexdat: $!\n";
   if ($station_program == 88888) {
     print "Myrtle1:$attFileName\n";
@@ -208,21 +201,19 @@ EOF
   }
   print(UNHEX "$data\n");
   close(UNHEX);
-  # Setup alert handling
-  print "end of fbox1 sub: alert_enabled $alert_enabled \n";
+  print "end of fbox1 sub alert_enabled $alert_enabled \n";
   if ($alert_enabled != 201) {
-    print "Calling process $process\n";
     open(PROCESS, "| $process") || die "can't open $process: $!\n";
     print(PROCESS "$data\n");
     close(PROCESS);
-    print "end of fbox1  alert_enabled $alert_enabled so $process processed\n";
+    print "end of fbox1  alert_enabled $alert_enabled so ??_upd.pl processed\n";
   } else {
-    print "end of fbox1  alert_enabled $alert_enabled so $process not processed\n";
+    print "end of fbox1  alert_enabled $alert_enabled so ??_upd.pl not processed\n";}
   }
-} # end of fbox1 subroutine
 
+# subroutines
 sub old_decode_base64 ($) {
-# Bruce's subroutine which decodes the orby attachment which is uuencoded
+# Bruce's subroutine which decodes the orby attachemnt which is uuencoded
   local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
 
   my $str = shift;
@@ -240,13 +231,13 @@ sub old_decode_base64 ($) {
     $res .= unpack("u", $len . $1 );    # uudecode
   }
   $res;
-} # End of old_decode_base64 subroutine
+}
 
 sub decode_nmf {
   $datatype=$_[0];
   $mon=$_[1];
   $bytes=$_[2];
-# call decode_nmf($datatype,$mon,$data);
+  # call decode_nmf($datatype,$mon,$data);
   $unbindat="/noc/users/iridburst/$datatype/".$datatype."_unbinary_$mon.dat";
   open (UNBIN, ">> $unbindat");
 
@@ -275,7 +266,7 @@ sub decode_nmf {
     $altitude_high=ord(substr($bytes,21,1));
     $altitude_low=ord(substr($bytes,22,1));
     $movement=substr($bytes,23,1);
-    } else {
+  } else {
     $alert=' ';
     $altitude_high=ord(substr($bytes,20,1));
     $altitude_low=ord(substr($bytes,21,1));
@@ -285,7 +276,7 @@ sub decode_nmf {
   print(UNBIN "$NSEW,$hr, $min, $sec, $jday_high, $jday_low, $lat_deg, $lat_min, $lat_min_dec_high, $lat_min_dec_low, $long_deg, $long_min, $long_min_dec_high, $long_min_dec_low, $speed_high, $speed_low, $course_high, $course_low, $batt_volt, $temperature, $alert, $altitude_high, $altitude_low, $movement\n");
 
   close(UNBIN);
-} # end of decode_nmf subroutine
+}
 
 # end of subroutines
 
