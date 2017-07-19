@@ -70,9 +70,9 @@ print("BODY $body\n");
 if ($stationl eq 'xxxx') {
   # If the station name is 'xxxx' use the xxxx_upd.pl script to process
   $handler="/noc/users/iridburst/exec/${stationl}_upd.pl";
-  # If this is sbdservice, or iridburst, data
 } else {
-  if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst')  ) {
+  # If this is sbdservice, or iridburst, data
+  if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst') ) {
     # decodes attachment input for $irid_id,$jday,$lat,$lon,$rest0
     #################
     # Find out from realtime database what the alert status is for this station
@@ -84,54 +84,67 @@ if ($stationl eq 'xxxx') {
     #printf("@row\n");
     print("STATION TABLE DATA $station_id,$station_program,$station_ptt,$station_name,$lat_ref,$lon_ref,$error_radius,$hours_silent,$alert_address,$alert_enabled \n");
 
+    # Decide how to deal with data using fbox1 subroutine
     fbox1($stationl,$body,$mon,$alert_enabled);
 
+    # Carry out alert checking according to flag in realtime database for this station
+    # Alert checking =0: alerts off
     if ($alert_enabled == 0) {
       printf("No alert checking for $station, no further action\n");
       exit;
     }
+    # Alert checking =101: alert status - unknown -> use the ??_upd.pl script
     if ($alert_enabled == 101) {
-      print("record for IRID stationl  $station send to ???_upd.pl \n");
+      print("Alert status unknown for IRID stationl  $station - alert handling passed to ${stationl}_upd.pl\n");
       exit;
     }
     ####################
+    # Alert checking =0 or 201: alert checking is on - run irid_alert.pl for this station
     if (($alert_enabled == 1) || ($alert_enabled == 201)) {
       $pass_out=$irid_id.",".$data;
-      $alert_prog="/noc/users/iridburst/exec/irid_alert.pl > /noc/users/iridburst/exec/out.log";
+      $alert_prog="/noc/users/iridburst/exec/irid_alert.pl > /noc/users/iridburst/logs/irid_alert.log";
       open(ALERT, "| $alert_prog") || die "can't open $logfile: $!\n";
       print(ALERT "$pass_out\n");
       close(ALERT);
       exit;
     }
-  } else {
+  } else { # Other station type (not sbdservice or iridburst)
     $handler="/noc/users/iridburst/exec/${stationl}_upd.pl";
   }
 }
 
-$logfile='/noc/users/iridburst/iridium.log';
-open(LOG, ">> $logfile") || die "can't open $logfile: $!\n";
+#$logfile='/noc/users/iridburst/logs/iridium.log';
+#open(LOG, ">> $logfile") || die "can't open $logfile: $!\n";
 $t=`date`;
+print("Completed: $t\n");
+#print(LOG "$t");
+#close(LOG);
 
+# =====================
 # subroutines
-
 sub fbox1 {
+  # Input parameters - station type, message body, month and alert_status
   $stationl=$_[0];
   $body=$_[1];
   $mon=$_[2];
   $alert_enabled=$_[3];
-  #print("IN SUB $station $body \n");
+
+  # We only handle sbdservice or iridburst station types (not necessary as checked before input to subroutine)
   if ( ($stationl eq 'sbdservice') or ($stationl eq 'iridburst')  ) {
     $datatype="irid_".$irid_id;
-#   $process="/noc/users/iridburst/exec/${stationl}_upd.pl";
     $process="/noc/users/iridburst/exec/${datatype}_upd.pl";
+    # Unknown alert status - dealt with in irid_$irid_id.pl
     if ($alert_enabled == 101) {
-      print ("PROCESS $process\n");
+      print ("PROCESS $process handling alerts\n");
       $to_address = $alert_address;
     }
+
+    # Set output data filesnames
     $rawdat="/noc/users/iridburst/$datatype"."/".$datatype."_raw_$mon.dat";
     $unhexdat="/noc/users/iridburst/$datatype/".$datatype."_unhexed_$mon.dat";
     $unbindat="/noc/users/iridburst/$datatype/".$datatype."_unbinary_$mon.dat";
 
+    # SBM Message encoded in base 64 - decode using old_decode_base64
     if (($body=~ m/SBM Message/)&&($body=~ m/Encoding: base64/ )) {
       ($body_clear,$body_hex0)= split /base64/,$body,2;
       ($body_hex1,$rest)=split /--SBD/,$body_hex0,2;
@@ -143,6 +156,7 @@ sub fbox1 {
       $data = old_decode_base64($body_hex);
     }
 
+    # multipart message in MIME format encoded in base64
     if (($body=~ m/multipart message in MIME format/)&&($body=~ m/Encoding: base64/ )) {
       print ("ENTERING NEW CODE\n");
       ($body_clear,$body_hex0)= split /base64/,$body,2;
@@ -157,10 +171,10 @@ sub fbox1 {
       print ("BODY_HEX:$body_hex\n");
       $data = old_decode_base64($body_hex);
     }
-    # print(LOG "RAWDATname $rawdat\n");
-    if ($irid_id == 300034012433270) {
+
+    if ($irid_id == 300034012433270) { # Specific NMF format iridium id
       decode_nmf($datatype,$mon,$data);
-    } else {
+    } else {  # all other iridium messages - forward the email to email list
       open( MAIL, "|$mailprog $to_address") or die "Can't open sendmail \n";
       print MAIL <<"EOF";
 Reply-to: $from_address
@@ -174,7 +188,8 @@ EOF
       close(MAIL);
     }
 
-  } else {
+  } else { # We should never get here as fbox1 not called in this case
+ -  print "Entering fbox1 else block - we should not be here!\n";
     if ($stationl eq 'xxx') {
       $datatype='xxxxxxx';
       $process="/noc/users/iridburst/exec/".$stationl."_upd.pl";
@@ -184,16 +199,18 @@ EOF
       $unbindat="/noc/users/iridburst/$datatype/".$datatype."_unbinary_$mon.dat";
       $data = old_decode_base64($body);
     } else {
-      print("Unreognized source $station\n");
+      print("Unrecognized source $station\n");
       exit;
     }
-  }
+  } # End of sbdservice / iridburst if / else block
 
+  # Output the raw data to raw file
   open(RAW, ">> $rawdat") || die "can't open $rawdat: $!\n";
   print(RAW "$header\n"); #for testing
   print(RAW "$body");
   close(RAW);
 
+  # Output the unhexed data
   open(UNHEX, ">> $unhexdat") || die "can't open $unhexdat: $!\n";
   if ($station_program == 88888) {
     print "Myrtle1:$attFileName\n";
@@ -201,19 +218,23 @@ EOF
   }
   print(UNHEX "$data\n");
   close(UNHEX);
+
+  # Setup alert handling
   print "end of fbox1 sub alert_enabled $alert_enabled \n";
+  # For all staions, unless alert status set to 201
   if ($alert_enabled != 201) {
+    # Pipe the unhexed data throu correct processing
     open(PROCESS, "| $process") || die "can't open $process: $!\n";
     print(PROCESS "$data\n");
     close(PROCESS);
-    print "end of fbox1  alert_enabled $alert_enabled so ??_upd.pl processed\n";
+    print "end of fbox1  alert_enabled $alert_enabled so $process  processed\n";
   } else {
-    print "end of fbox1  alert_enabled $alert_enabled so ??_upd.pl not processed\n";}
+    print "end of fbox1  alert_enabled $alert_enabled so $process not processed\n";
   }
+} # end of fbox1 subroutine
 
-# subroutines
 sub old_decode_base64 ($) {
-# Bruce's subroutine which decodes the orby attachemnt which is uuencoded
+# Bruce's subroutine which decodes the orby attachment which is uuencoded
   local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
 
   my $str = shift;
@@ -231,7 +252,7 @@ sub old_decode_base64 ($) {
     $res .= unpack("u", $len . $1 );    # uudecode
   }
   $res;
-}
+} # End of old_decode_base64 subroutine
 
 sub decode_nmf {
   $datatype=$_[0];
@@ -276,7 +297,6 @@ sub decode_nmf {
   print(UNBIN "$NSEW,$hr, $min, $sec, $jday_high, $jday_low, $lat_deg, $lat_min, $lat_min_dec_high, $lat_min_dec_low, $long_deg, $long_min, $long_min_dec_high, $long_min_dec_low, $speed_high, $speed_low, $course_high, $course_low, $batt_volt, $temperature, $alert, $altitude_high, $altitude_low, $movement\n");
 
   close(UNBIN);
-}
+} # end of decode_nmf subroutine
 
 # end of subroutines
-
